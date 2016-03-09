@@ -7,6 +7,13 @@ import (
 	"net/http"
 )
 
+type CurrencyInfo struct {
+	Date  string  `json:"date"`
+	Order string  `json:"order"`
+	Type  string  `json:"type"`
+	Value float64 `json:"value"`
+}
+
 type AlfaExchange struct {
 	Request struct {
 			Filter struct {
@@ -22,30 +29,10 @@ type AlfaExchange struct {
 		} `json:"request"`
 	Response struct {
 			Data struct {
-				     Chf []struct {
-					     Date  string  `json:"date"`
-					     Order string  `json:"order"`
-					     Type  string  `json:"type"`
-					     Value float64 `json:"value"`
-				     } `json:"chf"`
-				     Eur []struct {
-					     Date  string  `json:"date"`
-					     Order string  `json:"order"`
-					     Type  string  `json:"type"`
-					     Value float64 `json:"value"`
-				     } `json:"eur"`
-				     Gbp []struct {
-					     Date  string  `json:"date"`
-					     Order string  `json:"order"`
-					     Type  string  `json:"type"`
-					     Value float64 `json:"value"`
-				     } `json:"gbp"`
-				     Usd []struct {
-					     Date  string  `json:"date"`
-					     Order string  `json:"order"`
-					     Type  string  `json:"type"`
-					     Value float64 `json:"value"`
-				     } `json:"usd"`
+				     Chf []CurrencyInfo `json:"chf"`
+				     Eur []CurrencyInfo `json:"eur"`
+				     Gbp []CurrencyInfo `json:"gbp"`
+				     Usd []CurrencyInfo `json:"usd"`
 			     } `json:"data"`
 			Status string `json:"status"`
 		} `json:"response"`
