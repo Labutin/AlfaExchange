@@ -51,8 +51,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("Can't parse JSON %v", err)
 	}
-	fmt.Printf("%s%.2f %s%.2f", m.Response.Data.Usd[0].Order,m.Response.Data.Usd[0].Value,
-		m.Response.Data.Usd[1].Order,m.Response.Data.Usd[1].Value)
+	var sellPrice float64
+	var sellOrder string
+	var buyPrice float64
+	var buyOrder string
+	for i:= range m.Response.Data.Usd {
+		if m.Response.Data.Usd[i].Type == "sell" {
+			sellPrice = m.Response.Data.Usd[i].Value
+			sellOrder = m.Response.Data.Usd[i].Order
+		}
+		if m.Response.Data.Usd[i].Type == "buy" {
+			buyPrice = m.Response.Data.Usd[i].Value
+			buyOrder = m.Response.Data.Usd[i].Order
+		}
+	}
+	fmt.Printf("%s%.2f %s%.2f", buyOrder, buyPrice, sellOrder, sellPrice)
 }
 
 
