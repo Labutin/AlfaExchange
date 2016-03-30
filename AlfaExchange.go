@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/user"
+	"os"
+	"io/ioutil"
+	"strconv"
 )
 
 type CurrencyInfo struct {
@@ -38,8 +42,56 @@ type AlfaExchange struct {
 		} `json:"response"`
 }
 
+func getStoreFilePath() (dir string, fileName string)  {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return usr.HomeDir + "/.AlfaExchange/", "minimum.txt"
+}
+
+func createStoreFileIfNotExist(storePath string, fileName string) {
+	if _, err := os.Stat(storePath); os.IsNotExist(err) {
+		os.Mkdir(storePath, 0700)
+	}
+	if _, err := os.Stat(storePath + fileName); os.IsNotExist(err) {
+		initValue := []byte("100000")
+		err := ioutil.WriteFile(storePath + fileName, initValue, 0600)
+		if err != nil {
+			log.Fatalf("Can't create store file %v", err)
+		}
+	}
+}
+
+func getSeenMinimum() (float64) {
+	storePath, storeFileName := getStoreFilePath()
+
+	createStoreFileIfNotExist(storePath, storeFileName)
+
+	dat, err := ioutil.ReadFile(storePath + storeFileName)
+	if err != nil {
+		log.Fatalf("Can't read store file %v", err)
+	}
+	res, err := strconv.ParseFloat(string(dat), 64)
+	if err != nil {
+		log.Fatalf("Can't convert data from store file %v", err)
+	}
+
+	return res
+}
+
+func updateSeenMinimum(newMinimum float64) {
+	initValue := []byte(strconv.FormatFloat(newMinimum, 'f', 2, 64))
+	storePath, storeFileName := getStoreFilePath()
+	err := ioutil.WriteFile(storePath + storeFileName, initValue, 0644)
+	if err != nil {
+		log.Fatalf("Can't write to store file %v", err)
+	}
+}
 
 func main() {
+	seenMinimum := getSeenMinimum()
 	resp, err := http.Get("https://alfabank.ru/ext-json/0.2/exchange/cash/")
 	if err != nil {
 		log.Fatalf("Can't get rates %v", err)
@@ -65,7 +117,12 @@ func main() {
 			buyOrder = m.Response.Data.Usd[i].Order
 		}
 	}
-	fmt.Printf("%s%.2f %s%.2f", buyOrder, buyPrice, sellOrder, sellPrice)
+	outputFormat := "%s%.2f %s%.2f"
+	if sellPrice <= seenMinimum {
+		outputFormat = "%s%.2f %s%.2f | color=green"
+		updateSeenMinimum(sellPrice)
+	}
+	fmt.Printf(outputFormat, buyOrder, buyPrice, sellOrder, sellPrice)
 }
 
 
