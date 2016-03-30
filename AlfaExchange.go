@@ -91,7 +91,6 @@ func updateSeenMinimum(newMinimum float64) {
 }
 
 func main() {
-	seenMinimum := getSeenMinimum()
 	resp, err := http.Get("https://alfabank.ru/ext-json/0.2/exchange/cash/")
 	if err != nil {
 		log.Fatalf("Can't get rates %v", err)
@@ -117,7 +116,9 @@ func main() {
 			buyOrder = m.Response.Data.Usd[i].Order
 		}
 	}
+
 	outputFormat := "%s%.2f %s%.2f"
+	seenMinimum := getSeenMinimum()
 	if sellPrice <= seenMinimum {
 		outputFormat = "%s%.2f %s%.2f | color=green"
 		updateSeenMinimum(sellPrice)
