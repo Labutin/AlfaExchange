@@ -117,6 +117,12 @@ func main() {
 		}
 	}
 
+	if buyOrder == "0" {
+		buyOrder = ""
+	}
+	if sellOrder == "0" {
+		sellOrder = ""
+	}
 	outputFormat := "%s%.2f %s%.2f"
 	seenMinimum := getSeenMinimum()
 	if sellPrice <= seenMinimum {
